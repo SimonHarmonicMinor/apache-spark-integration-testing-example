@@ -16,15 +16,15 @@ import java.io.Serializable;
 import static com.mts.metric.spark.config.aerospike.AerospikeFactory.newAerospikeClient;
 
 @Service
-public class HuaweiSubscriberIdEnricherService implements EnricherService, Serializable {
+public class SubscriberIdEnricherService implements EnricherService, Serializable {
     private static final long serialVersionUID = 10L;
-    private static final Logger LOG = LoggerFactory.getLogger(HuaweiSubscriberIdEnricherService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SubscriberIdEnricherService.class);
 
     private final SparkSession session;
     private final AerospikeProperties aerospikeProperties;
 
-    public HuaweiSubscriberIdEnricherService(SparkSession session,
-                                             AerospikeProperties aerospikeProperties) {
+    public SubscriberIdEnricherService(SparkSession session,
+                                       AerospikeProperties aerospikeProperties) {
         this.session = session;
         this.aerospikeProperties = aerospikeProperties;
     }
@@ -32,7 +32,7 @@ public class HuaweiSubscriberIdEnricherService implements EnricherService, Seria
     @Override
     public void proceedEnrichment() {
         Dataset<Row> dataset = session.sql(
-            "SELECT subscriber_id, msisdn FROM mediatv_dds.subscriber_info " +
+            "SELECT subscriber_id, msisdn FROM media.subscriber_info " +
                 "WHERE msisdn IS NOT NULL AND subscriber_id IS NOT NULL"
         );
         dataset
@@ -40,9 +40,9 @@ public class HuaweiSubscriberIdEnricherService implements EnricherService, Seria
                 iterator -> {
                     final var aerospikeClient = newAerospikeClient(aerospikeProperties);
                     iterator.forEachRemaining(row -> {
-                        String huaweiSubscriberId = row.getString(row.fieldIndex("subscriber_id"));
-                        String msisdn = row.getString(row.fieldIndex("msisdn"));
-                        Key key = new Key("my-namespace", "huawei", huaweiSubscriberId);
+                        String subscriberId = row.getAs("subscriber_id");
+                        String msisdn = row.getAs("msisdn");
+                        Key key = new Key("my-namespace", "huawei", subscriberId);
                         Bin bin = new Bin("msisdn", msisdn);
                         try {
                             aerospikeClient.put(null, key, bin);

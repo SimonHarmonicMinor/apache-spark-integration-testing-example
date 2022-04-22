@@ -24,13 +24,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasSize;
 
-class HuaweiSubscriberIdEnricherServiceUnitTest extends SparkIntegrationSuite {
+class SubscriberIdEnricherServiceIntegrationTest extends SparkIntegrationSuite {
     @Autowired
     private TestHiveUtils hive;
     @Autowired
     private TestAerospikeFacade aerospike;
     @Autowired
-    private EnricherService huaweiEnricherService;
+    private EnricherService subscriberEnricherService;
 
     @BeforeEach
     void beforeEach() {
@@ -50,12 +50,11 @@ class HuaweiSubscriberIdEnricherServiceUnitTest extends SparkIntegrationSuite {
                     .setSubscriberId("subscriberId2")
             );
 
-        huaweiEnricherService.proceedEnrichment();
+        subscriberEnricherService.proceedEnrichment();
 
         List<KeyRecord> keyRecords = await()
             .atMost(TEN_SECONDS)
-            .until(() -> aerospike.scanAll("my-namespace"),
-                hasSize(2));
+            .until(() -> aerospike.scanAll("my-namespace"), hasSize(2));
         assertThat(keyRecords, allOf(
             hasRecord("subscriberId1", "msisdn1"),
             hasRecord("subscriberId2", "msisdn2")

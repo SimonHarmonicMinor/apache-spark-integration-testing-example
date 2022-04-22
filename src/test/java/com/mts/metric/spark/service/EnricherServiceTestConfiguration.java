@@ -10,19 +10,10 @@ import org.springframework.context.annotation.Bean;
 public class EnricherServiceTestConfiguration {
 
     @Bean
-    public EnricherService huaweiEnricherService(SparkSession session,
-                                                 AerospikeProperties aerospikeProperties) {
-        return new HuaweiSubscriberIdEnricherService(
+    public EnricherService subscriberEnricherService(SparkSession session,
+                                                     AerospikeProperties aerospikeProperties) {
+        return new SubscriberIdEnricherService(
             session, aerospikeProperties
-        );
-    }
-
-    @Bean
-    public EnricherService sexAgeEnricherService(SparkSession session,
-                                                 AerospikeProperties aerospikeProperties) {
-        return new SexAgeHiveEnricherService(
-            session,
-            aerospikeProperties
         );
     }
 }

@@ -11,7 +11,6 @@ import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static com.mts.metric.spark.config.Profiles.LOCAL;
 import static com.mts.metric.spark.config.Profiles.PROD;
@@ -23,13 +22,8 @@ public class SparkConfig {
 
     @Bean
     @Profile(LOCAL)
-    public Path localHivePath() throws IOException {
-        return Files.createTempDirectory("hiveDataWarehouse");
-    }
-
-    @Bean
-    @Profile(LOCAL)
-    public SparkConf localSparkConf(Path localHivePath) throws IOException {
+    public SparkConf localSparkConf() throws IOException {
+        final var localHivePath = Files.createTempDirectory("hiveDataWarehouse");
         FileSystemUtils.deleteRecursively(localHivePath);
         return new SparkConf()
             .setAppName(appName)
@@ -56,8 +50,7 @@ public class SparkConfig {
     }
 
     @Bean
-    @Profile({PROD, LOCAL})
-    public SparkSession sparkSessionSupplier(JavaSparkContext sparkContext) {
+    public SparkSession sparkSession(JavaSparkContext sparkContext) {
         return SparkSession.builder()
             .sparkContext(sparkContext.sc())
             .config(sparkContext.getConf())

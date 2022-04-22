@@ -1,1 +1,0 @@
-drop table ff_dm.v_sex_n_age_results

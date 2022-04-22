@@ -1,1 +1,0 @@
-drop table mediatv_dds.subscriber_info
